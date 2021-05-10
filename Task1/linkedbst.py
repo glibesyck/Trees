@@ -186,7 +186,8 @@ class LinkedBST(AbstractCollection):
                 parent.right = current_node.left
 
         # Begin main part of the method
-        if self.isEmpty(): return None
+        if self.isEmpty():
+            return None
 
         # Attempt to locate the node containing the item
         item_removed = None
@@ -208,7 +209,8 @@ class LinkedBST(AbstractCollection):
                 current_node = current_node.right
 
         # Return None if the item is absent
-        if item_removed == None: return None
+        if item_removed == None:
+            return None
 
         # The item is present, so remove its node
 
@@ -274,7 +276,7 @@ class LinkedBST(AbstractCollection):
             :return: int
             '''
             if top is None:
-                return -1 #top is None means we made step from leaf into nowhere
+                return -1  # top is None means we made step from leaf into nowhere
             else:
                 return 1 + max(height1(top.left), height1(top.right))
 
@@ -294,11 +296,23 @@ class LinkedBST(AbstractCollection):
         :param high:
         :return:
         '''
+        root = self._root
         list_of_values = []
-        sorted_list = list(self.inorder())
-        for value in sorted_list:
-            if low <= value <= high:
-                list_of_values.append(value)
+
+        def recurse(root, low, high):
+            """
+            Add elements in given range to list.
+            """
+            if root is None:
+                return
+            if root.data > low:
+                recurse(root.left, low, high)
+            if low <= root.data <= high:
+                list_of_values.append(root.data)
+            if root.data < high:
+                recurse(root.right, low, high)
+
+        recurse(root, low, high)
         return list_of_values
 
     def rebalance(self):
@@ -334,11 +348,22 @@ class LinkedBST(AbstractCollection):
         :return:
         :rtype:
         """
-        sorted_list = list(self.inorder())
-        for value in sorted_list:
-            if value > item:
-                return value
-        return None
+        root = self._root
+        succ = None
+        while root:
+            if item < root.data:
+                succ = root.data
+                root = root.left
+            elif item > root.data:
+                root = root.right
+            else:
+                if root.right:
+                    root = root.right
+                    while root.left:
+                        root = root.left
+                    succ = root.data
+                break
+        return succ
 
     def predecessor(self, item):
         """
@@ -349,17 +374,19 @@ class LinkedBST(AbstractCollection):
         :return:
         :rtype:
         """
-        sorted_list = list(self.inorder())
-        for value in reversed(sorted_list):
-            if value < item:
-                return value
-        return None
-
-    # def demo_bst(self, path):
-    #     """
-    #     Demonstration of efficiency binary search tree for the search tasks.
-    #     :param path:
-    #     :type path:
-    #     :return:
-    #     :rtype:
-    #     """
+        root = self._root
+        prec = None
+        while root:
+            if item < root.data:
+                root = root.left
+            elif item > root.data:
+                prec = root.data
+                root = root.right
+            else:
+                if root.left:
+                    root = root.left
+                    while root.right:
+                        root = root.right
+                    prec = root.data
+                break
+        return prec
